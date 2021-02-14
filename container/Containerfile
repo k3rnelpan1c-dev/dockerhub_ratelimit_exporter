@@ -1,0 +1,11 @@
+FROM alpine:3.13
+
+LABEL name="dockerhub_ratelimit_exporter" version="1.1.0" \
+      description="A exporter for prometheus to check the pull limit of the DockerHub" \
+      url="https://github.com/dohq/dockerhub_ratelimit_exporter"
+
+COPY ./dockerhub_ratelimit_exporter /usr/local/bin
+COPY ./entrypoint.sh /usr/local/bin
+
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["ratelimit"]
