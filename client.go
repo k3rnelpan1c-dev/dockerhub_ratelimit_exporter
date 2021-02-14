@@ -18,6 +18,7 @@ const (
 type RateLimit struct {
 	Limit     int
 	Remaining int
+	window    time.Duration
 }
 
 type Response struct {
@@ -80,7 +81,7 @@ func getAuthToken(ctx context.Context, username, password string) (string, error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("authenticate is failed. status code is %d", resp.StatusCode)
+		return "", fmt.Errorf("authentication failed with status code %d", resp.StatusCode)
 	}
 
 	var res Response
@@ -107,22 +108,27 @@ func checkLimit(ctx context.Context, username, password string) (*RateLimit, err
 		return nil, fmt.Errorf("authenticate is failed. status code is %d", resp.StatusCode)
 	}
 
-	limit, err := parseHeader(resp.Header.Get("RateLimit-Limit"))
-	if err != nil {
-		return nil, err
-	}
-	remaining, err := parseHeader(resp.Header.Get("RateLimit-Remaining"))
-	if err != nil {
-		return nil, err
-	}
+	limit, _ := parseHeader(resp.Header.Get("RateLimit-Limit"))
+	remaining, window := parseHeader(resp.Header.Get("RateLimit-Remaining"))
 
 	res := &RateLimit{
 		Limit:     limit,
 		Remaining: remaining,
+		window:    window,
 	}
 	return res, nil
 }
 
-func parseHeader(s string) (int, error) {
-	return strconv.Atoi(strings.Split(s, ";")[0])
+func parseHeader(s string) (int, time.Duration) {
+	parts := strings.SplitN(s, ";w=", 2)
+
+	num, _ := strconv.Atoi(parts[0])
+	dur := time.Duration(0)
+
+	if len(parts) > 1 {
+		i, _ := strconv.Atoi(parts[1])
+		dur = time.Duration(i) * time.Second
+	}
+
+	return num, dur
 }
