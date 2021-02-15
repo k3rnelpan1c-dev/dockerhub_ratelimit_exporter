@@ -28,6 +28,6 @@ func main() {
 	prometheus.MustRegister(c)
 
 	http.Handle("/metrics", promhttp.Handler())
-	log.Println("starting exporter")
+	log.Printf("starting exporter on %s", *addr)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
