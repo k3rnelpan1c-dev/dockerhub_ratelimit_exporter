@@ -5,7 +5,7 @@ on:
 
 jobs:
   inc-build:
-    name: "Build & publish incremental Image"
+    name: "Build and Publish"
     runs-on: ubuntu-latest
 
     steps:
