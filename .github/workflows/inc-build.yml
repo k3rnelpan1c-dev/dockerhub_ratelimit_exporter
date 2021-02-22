@@ -37,7 +37,7 @@ jobs:
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: k3rnel-pan1c/dockerhub_ratelimit_exporter
+          image: ${{ github.repository_owner }}/dockerhub_ratelimit_exporter
           tags: unstable ${{ github.sha }}
           oci: true
           context: ./container
@@ -49,6 +49,6 @@ jobs:
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
-          registry: quay.io
-          username: k3rnel-pan1c+github_test
-          password: ${{ secrets.RH_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_TOKEN }}
