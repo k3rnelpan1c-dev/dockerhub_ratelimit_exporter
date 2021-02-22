@@ -33,18 +33,21 @@ jobs:
           GO111MODULE: on
         run: go build -o container/dockerhub_ratelimit_exporter
 
+      - name: "Get Git short Hash"
+        run: echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
+
       - name: "Build Image"
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ github.repository_owner }}/dockerhub_ratelimit_exporter
-          tags: unstable ${{ github.sha }}
+          tags: unstable ${{ env.SHORT_SHA }}
           oci: true
           context: ./container
           dockerfiles: |
             ./container/Containerfile
 
-      - name: "Publish Image"
+      - name: "Publish Image to ghcr.io"
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ steps.build-image.outputs.image }}
@@ -52,3 +55,18 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.CR_TOKEN }}
+
+      - name: "Re-Tag Image for quay.io"
+        run: |
+          podman tag ${{ github.repository_owner }}/dockerhub_ratelimit_exporter:unstable \
+            k3rnel-pan1c/dockerhub_ratelimit_exporter:unstable \
+            k3rnel-pan1c/dockerhub_ratelimit_exporter:${{ env.SHORT_SHA }}
+
+      - name: "Publish Image to quay.io"
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: k3rnel-pan1c/dockerhub_ratelimit_exporter
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: quay.io
+          username: k3rnel-pan1c+github_test
+          password: ${{ secrets.RH_TOKEN }}
