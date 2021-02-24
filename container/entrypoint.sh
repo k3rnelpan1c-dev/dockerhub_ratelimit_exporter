@@ -23,7 +23,7 @@ if [[ "${1}" == 'dockerhub_ratelimit_exporter' ]]; then
   file_env 'DH_PWD'
   file_env 'DH_USR' "${DH_USR:-}"
 
-  if [[ -z ${DH_USR} && -z ${DH_PWD} ]]; then
+  if [[ -n ${DH_USR} && -n ${DH_PWD} ]]; then
     exec dockerhub_ratelimit_exporter -listen "${LISTEN:-127.0.0.1:9767}" -username "${DH_USR}" -password "${DH_PWD}"
   else
     exec dockerhub_ratelimit_exporter -listen "${LISTEN:-127.0.0.1:9767}"
