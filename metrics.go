@@ -23,17 +23,11 @@ var (
 		Name:      "remaining",
 		Help:      "DockerHub RateLimit-Remaining pulls within the current TimeWindow",
 	})
-	WindowGauge = prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Name:      "window_seconds",
-		Help:      "DockerHub RateLimit-TimeWindow remaining for the current RateLimit",
-	})
 )
 
 func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- RateLimitGauge.Desc()
 	ch <- RemainingGauge.Desc()
-	ch <- WindowGauge.Desc()
 }
 
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
@@ -53,10 +47,5 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 		RemainingGauge.Desc(),
 		prometheus.GaugeValue,
 		float64(l.Remaining),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		WindowGauge.Desc(),
-		prometheus.GaugeValue,
-		l.window.Seconds(),
 	)
 }
