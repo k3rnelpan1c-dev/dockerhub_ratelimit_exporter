@@ -40,7 +40,7 @@ jobs:
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ${{ github.repository_owner }}/dockerhub_ratelimit_exporter
+          image: dockerhub_ratelimit_exporter
           tags: unstable ${{ env.SHORT_SHA }}
           oci: true
           context: ./container
@@ -52,21 +52,15 @@ jobs:
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
-          registry: ghcr.io
+          registry: ghcr.io/${{ github.repository_owner }}
           username: ${{ github.actor }}
           password: ${{ secrets.CR_TOKEN }}
-
-      - name: "Re-Tag Image for quay.io"
-        run: |
-          podman tag ${{ github.repository_owner }}/dockerhub_ratelimit_exporter:unstable \
-            k3rnel-pan1c/dockerhub_ratelimit_exporter:unstable \
-            k3rnel-pan1c/dockerhub_ratelimit_exporter:${{ env.SHORT_SHA }}
 
       - name: "Publish Image to quay.io"
         uses: redhat-actions/push-to-registry@v2
         with:
           image: k3rnel-pan1c/dockerhub_ratelimit_exporter
           tags: ${{ steps.build-image.outputs.tags }}
-          registry: quay.io
+          registry: quay.io/k3rnel-pan1c
           username: k3rnel-pan1c+github_test
           password: ${{ secrets.RH_TOKEN }}
