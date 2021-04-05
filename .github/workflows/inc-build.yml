@@ -65,7 +65,7 @@ jobs:
       - name: "Publish Image to quay.io"
         uses: redhat-actions/push-to-registry@v2.1.1
         with:
-          image: k3rnel-pan1c/dockerhub_ratelimit_exporter
+          image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
           registry: quay.io/k3rnel-pan1c
           username: k3rnel-pan1c+github_test
