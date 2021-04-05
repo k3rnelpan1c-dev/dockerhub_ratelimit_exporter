@@ -36,6 +36,12 @@ jobs:
       - name: "Get Git short Hash"
         run: echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
 
+      - name: "Temp Buildah 1.20.0 fix"
+        run: |
+          sudo apt-get install fuse-overlayfs
+          mkdir -vp ~/.config/containers
+          printf "[storage.options]\nmount_program=\"/usr/bin/fuse-overlayfs\"" > ~/.config/containers/storage.conf
+
       - name: "Build Image"
         id: build-image
         uses: redhat-actions/buildah-build@v2.3
@@ -48,7 +54,7 @@ jobs:
             ./container/Containerfile
 
       - name: "Publish Image to ghcr.io"
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v2.1.1
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
@@ -57,7 +63,7 @@ jobs:
           password: ${{ secrets.CR_TOKEN }}
 
       - name: "Publish Image to quay.io"
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v2.1.1
         with:
           image: k3rnel-pan1c/dockerhub_ratelimit_exporter
           tags: ${{ steps.build-image.outputs.tags }}
