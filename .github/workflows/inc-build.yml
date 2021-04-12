@@ -44,7 +44,7 @@ jobs:
 
       - name: "Build Image"
         id: build-image
-        uses: redhat-actions/buildah-build@v2.3
+        uses: redhat-actions/buildah-build@v2.4
         with:
           image: dockerhub_ratelimit_exporter
           tags: unstable ${{ env.SHORT_SHA }}
